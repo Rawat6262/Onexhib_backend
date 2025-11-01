@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 });
 
 // Server
-
-app.listen(8000, () => console.log('🚀 Server Started at Port 8000'));
+let PORT = 8000;
+app.listen(PORT, () => console.log('🚀 Server Started at Port 8000'));
 
 
