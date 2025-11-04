@@ -397,6 +397,16 @@ async function handleGetCompany(req, res) {
     return handleServerError(res, err, "Failed to fetch company");
   }
 }
+async function handleproductDetail(req,res){
+try{
+  const { id } = req.params;
+  let product = await ProductModel.findById(id);
+  if (!product) return res.status(404).json({ message: "product not found" });
+  res.json(product);
+}catch (err) {
+    return handleServerError(res, err, "Failed to fetch Product Details");
+  }
+} 
 
 // ✅ Add new product
 async function handlePostProduct(req, res) {
@@ -839,5 +849,6 @@ module.exports = {
   handleappotp,
   handlewebotp,
   handleapplogin,
-  handlegetimage
+  handlegetimage,
+  handleproductDetail
 };

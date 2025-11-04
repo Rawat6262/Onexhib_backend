@@ -20,7 +20,8 @@ const {
   handlewebotp,
   handleapplogin,
   handleapprealsignup,
-  handlegetimage
+  handlegetimage,
+  handleproductDetail
 } = require('../Controller/Controller');
 
 const {
@@ -74,6 +75,7 @@ router.get('/api/company/:id', handleGetCompany);
 router.get('/api/company/addproduct/:id', handleGetaddCompany); 
 router.get('/api/product/:id', handleGetproduct); 
 router.post("/api/product", productupload.single("image"),handlePostProduct);
+router.get("/api/product/detail/:id",handleproductDetail);
 router.get('/api/brochure/:id',handlegetBrochure)
 router.post('/api/image',handlegetimage)
 /**
