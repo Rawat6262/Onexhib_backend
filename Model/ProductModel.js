@@ -17,20 +17,16 @@ let productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    path: {
+    product_url: {
         type: String,
         required: true
-    },
-    filename: {
-        type: String,
-        required: true
-    },createdBy:{
-            type:mongoose.Schema.ObjectId,
-            ref:'product'
-        },exhibitionid:{
-           type:mongoose.Schema.ObjectId,
-            ref:'exhibition'
-        }
+    }, createdBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'product'
+    }, exhibitionid: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'exhibition'
+    }
 })
 
 let ProductModel = mongoose.model('ProductModel', productSchema);

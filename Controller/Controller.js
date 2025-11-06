@@ -9,7 +9,7 @@ const { setExhibition, setname } = require('../Service/Auth');
 const fs = require('fs');
 const mongoose = require("mongoose");   // ✅ FIXED (no import, use require)
 const otpmodel = require('../Model/Otpmodel');
-
+let cloudinary = require('../Service/Cloudinay')
 // ✅ Helper to handle server errors consistently
 const handleServerError = (res, err, message = "Internal Server Error") => {
   console.error("❌", err);
@@ -263,7 +263,14 @@ console.log(exhibitionImage,layoutFile);
     } = req.body;
 
     const { _id: userId, email } = req.user;
-
+let ress= await cloudinary.uploader
+  .upload(exhibitionImage.path)
+  .then(result => result.url)
+  .catch(error => console.error(error));
+  let ress2 = await cloudinary.uploader
+  .upload(layoutFile.path)
+  .then(result => result.url)
+  .catch(error => console.error(error));
     const newExhibition = await exhibitionModel.create({
       exhibition_name,
       exhibition_address,
@@ -276,10 +283,8 @@ console.log(exhibitionImage,layoutFile);
       about_exhibition,
 
       // 👇 These fields are required in your schema
-      exhibtion_path: exhibitionImage.path,
-      exhibtion_filename: exhibitionImage.filename,
-      layout_path: layoutFile.path,
-      layout_filename: layoutFile.filename,
+     exhibtion_url:ress,
+     layout_url:ress2
     });
 
     if (!newExhibition) {
@@ -298,7 +303,10 @@ async function handlepostcompany(req, res) {
   try {
     let { path, filename } = req.file;
     const { company_name, company_email, company_nature, about_company, company_phone_number, company_address, pincode, createdBy } = req.body;
-
+let ress=  await cloudinary.uploader
+  .upload(path)
+  .then(result => result.url)
+  .catch(error => console.error(error));
     const company = await companyModel.create({
       company_name,
       company_email,
@@ -307,7 +315,7 @@ async function handlepostcompany(req, res) {
       company_address,
       pincode,
       createdBy,
-      about_company, path, filename
+      about_company, company_url:ress
     });
 
     res.status(201).json({ message: 'Company added successfully', company });
@@ -410,18 +418,21 @@ try{
 
 // ✅ Add new product
 async function handlePostProduct(req, res) {
+ 
   try {
     console.log("Uploaded File:", req.file);
     const { path, filename } = req.file;
     const { product_name, category, price, details, createdBy, exhibitionid } = req.body;
-
+  let ress=  await cloudinary.uploader
+  .upload(path)
+  .then(result => result.url)
+  .catch(error => console.error(error));
     const product = await ProductModel.create({
       product_name,
       category,
       price,
       details,
-      path,
-      filename,
+      product_url:ress,
       createdBy,
       exhibitionid
     });
@@ -513,6 +524,7 @@ console.log(filePath,'ffff');
 // const otpmodel = require("./otpmodel");
 const bcrypt = require("bcrypt");
 const appmodel = require('../Model/Appmodel');
+const { cloudinary_js_config } = require('../Service/Cloudinay');
 // const signupappmidle = require('../Middleware/Middleware');
 
 async function handleappsignup(req, res) {

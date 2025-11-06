@@ -26,14 +26,10 @@ let Companyschemma = new mongoose.Schema({
     about_company:{
          type: String,
         required: true,
-    }, path: {
-        type: String,
+    }, company_url:{
+        type:String,
         required: true
-    },
-    filename: {
-        type: String,
-        required: true
-    },
+    }
 
 });
 let companyModel = mongoose.model('companyModel', Companyschemma);

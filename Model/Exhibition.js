@@ -37,24 +37,18 @@ let exhibitionschema = new mongoose.Schema(
     createdby: {
       type: mongoose.Schema.ObjectId,
       ref: 'user'
-    }, exhibtion_path: {
+    }, exhibtion_url: {
         type: String,
         required: true
     },
-    exhibtion_filename: {
-        type: String,
-        required: true
-    },about_exhibition:{
+    about_exhibition:{
       type:String,
       required:true
-    },layout_path: {
+    },layout_url: {
         type: String,
         required: true
     },
-  layout_filename: {
-        type: String,
-        required: true
-    }
+  
   },
   {
     timestamps: true // Adds createdAt and updatedAt fields automatically
