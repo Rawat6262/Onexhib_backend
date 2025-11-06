@@ -302,6 +302,7 @@ let ress= await cloudinary.uploader
 async function handlepostcompany(req, res) {
   try {
     let { path, filename } = req.file;
+    console.log(path)
     const { company_name, company_email, company_nature, about_company, company_phone_number, company_address, pincode, createdBy } = req.body;
 let ress=  await cloudinary.uploader
   .upload(path)

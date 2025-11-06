@@ -49,25 +49,17 @@ function addvaluetoexhibition(req, res, next) {
 }
 
 const productstorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './Product_uploads')
-  },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
   }
 })
 const companystorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './company_uploads')
-  },
+ 
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
   }
 })
 const exhibtionstorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './Exhibition_uploads')
-  },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
   }
