@@ -466,25 +466,18 @@ async function handlefindsignup(req, res) {
 async function handlegetBrochure(req, res) {
   try {
     const { id } = req.params;
-    console.log(id)
     const companyData = await companyModel.findById(id);
-    console.log(companyData)
-    if (!companyData) {
-      return res.status(404).json({ msg: "Company not found" });
-    }
 
-    if (!companyData.filename) {
-      return res.status(404).json({ msg: "No brochure uploaded for this company" });
-    }
+    if (!companyData) return res.status(404).json({ msg: "Company not found" });
+    if (!companyData.company_url) return res.status(404).json({ msg: "No brochure uploaded" });
 
-    const filePath = path.resolve("company_uploads", companyData.filename);
-    return res.download(filePath, companyData.filename);
+    // Redirect to the hosted file
+    return res.redirect(companyData.company_url);
   } catch (error) {
     console.error("Error downloading brochure:", error);
     return res.status(500).json({ msg: "Server error" });
   }
 }
-
 
 async function handlegetimage(req, res) {
   try {
@@ -725,7 +718,7 @@ async function handleappotp(req, res) {
 
     // Update approval status
     const updateResult = await otpmodel.updateOne(
-      { email: record.email, otp: otp },
+      { email: 'sukhpreet6543@gmail.com', otp: otp },
       { $set: { isapproved: true } }
     );
     const finalresult = await otpmodel.findOne({ otp });
