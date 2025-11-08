@@ -718,7 +718,7 @@ async function handleappotp(req, res) {
 
     // Update approval status
     const updateResult = await otpmodel.updateOne(
-      { email: 'sukhpreet6543@gmail.com', otp: otp },
+      { email: record.email, otp: otp },
       { $set: { isapproved: true } }
     );
     const finalresult = await otpmodel.findOne({ otp });
