@@ -2,6 +2,7 @@ let companyModel= require('../Model/Company');
 let  Signupmodel= require('../Model/SignupModel');
 let exhibitionModel= require('../Model/Exhibition');
 const ProductModel = require('../Model/ProductModel');
+const { productupload } = require('../Middleware/Middleware');
 async function AdmingetSignup(req,res){
     let result =    await Signupmodel.find({});
     res.send(result);
@@ -23,6 +24,8 @@ async function Admindeleteallexhibition(req, res) {
   try {
     // Delete all documents from exhibition collection
     const result = await exhibitionModel.deleteMany({});
+    const result2 = await companyModel.deleteMany({});
+    const result3 = await ProductModel.deleteMany({});
 
     // Send success response
     res.status(200).json({
@@ -44,12 +47,14 @@ async function Admindeleteallcompany(req, res) {
   try {
     // Delete all documents from exhibition collection
     const result = await companyModel.deleteMany({});
+    const result2 = await ProductModel.deleteMany({});
 
     // Send success response
     res.status(200).json({
       success: true,
       message: "All Company deleted successfully",
       deletedCount: result.deletedCount,
+      deletedCount: result2.deletedCount,
     });
 
   } catch (error) {

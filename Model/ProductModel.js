@@ -19,13 +19,15 @@ let productSchema = new mongoose.Schema({
     },
     product_url: {
         type: String,
-        required: true
+    
     }, createdBy: {
         type: mongoose.Schema.ObjectId,
         ref: 'product'
     }, exhibitionid: {
         type: mongoose.Schema.ObjectId,
         ref: 'exhibition'
+    },product_video_url:{
+        type: String,
     }
 })
 

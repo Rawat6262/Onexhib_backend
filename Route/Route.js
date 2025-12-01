@@ -74,7 +74,7 @@ router.post('/api/company',companyupload.single('brochure'), handlepostcompany);
 router.get('/api/company/:id', handleGetCompany); 
 router.get('/api/company/addproduct/:id', handleGetaddCompany); 
 router.get('/api/product/:id', handleGetproduct); 
-router.post("/api/product", productupload.single("image"),handlePostProduct);
+router.post("/api/product", productupload.fields([{ name: "image" }, { name: "video" }]),handlePostProduct);
 router.get("/api/product/detail/:id",handleproductDetail);
 router.get('/api/brochure/:id',handlegetBrochure)
 router.post('/api/image',handlegetimage)

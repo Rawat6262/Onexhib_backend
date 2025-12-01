@@ -10,6 +10,8 @@ const fs = require('fs');
 const mongoose = require("mongoose");   // ✅ FIXED (no import, use require)
 const otpmodel = require('../Model/Otpmodel');
 let cloudinary = require('../Service/Cloudinay')
+// const { randomInt } = require('crypto');
+// const validator = require('validator');
 // ✅ Helper to handle server errors consistently
 const handleServerError = (res, err, message = "Internal Server Error") => {
   console.error("❌", err);
@@ -33,6 +35,12 @@ async function handlesignup(req, res) {
       country,
       company_name,
     } = req.body;
+    if (!first_name || !last_name || !email || !designation || !mobile_number || !password || !address || !website || !state || !city || !country || !company_name) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields  are required.",
+      });
+    }
     let otp = "";
     for (let i = 0; i < 6; i++) {
       otp = Math.floor(100000 + Math.random() * 900000);
@@ -182,23 +190,23 @@ async function handleapplogin(req, res) {
     console.log(email, pass);
 
     // 1️⃣ Find user by email only
-    const user1 = await otpmodel.findOne({ email,isapproved:false});
-    if(user1){
-      return  res
-      .status(404)
-      .json({
-        message: "User Not registered",
-      });
-    }else{
+    const user1 = await otpmodel.findOne({ email, isapproved: false });
+    if (user1) {
+      return res
+        .status(404)
+        .json({
+          message: "User Not registered",
+        });
+    } else {
 
     }
-    let user = await otpmodel.findOne({email})
+    let user = await otpmodel.findOne({ email })
     if (!user) return res.status(401).json({ message: "Invalid email or password" });
 
     // 2️⃣ Compare password hashes
-    const isMatch = await bcrypt.compare(pass,user.pass);
+    const isMatch = await bcrypt.compare(pass, user.pass);
     if (!isMatch) return res.status(401).json({ message: "Invalid email or password" });
-console.log(isMatch)
+    console.log(isMatch)
     // 3️⃣ Create and send token
     const token = setExhibition(user);
     console.log("User logged in:", user.email);
@@ -247,7 +255,7 @@ async function handleExhibition(req, res) {
 
     const exhibitionImage = req.files["exhibition_image"]?.[0];
     const layoutFile = req.files["layout"]?.[0];
-console.log(exhibitionImage,layoutFile);
+    console.log(exhibitionImage, layoutFile);
     if (!exhibitionImage || !layoutFile) {
       return res.status(400).json({ message: "Both exhibition image and layout are required" });
     }
@@ -259,18 +267,18 @@ console.log(exhibitionImage,layoutFile);
       starting_date,
       ending_date,
       venue,
-      about_exhibition,
+      about_exhibition, Support, privacy_policy, terms_of_service, partners, sponsor, session, speakers, email: exhibition_email
     } = req.body;
 
     const { _id: userId, email } = req.user;
-let ress= await cloudinary.uploader
-  .upload(exhibitionImage.path)
-  .then(result => result.url)
-  .catch(error => console.error(error));
-  let ress2 = await cloudinary.uploader
-  .upload(layoutFile.path)
-  .then(result => result.url)
-  .catch(error => console.error(error));
+    let ress = await cloudinary.uploader
+      .upload(exhibitionImage.path)
+      .then(result => result.url)
+      .catch(error => console.error(error));
+    let ress2 = await cloudinary.uploader
+      .upload(layoutFile.path)
+      .then(result => result.url)
+      .catch(error => console.error(error));
     const newExhibition = await exhibitionModel.create({
       exhibition_name,
       exhibition_address,
@@ -281,10 +289,17 @@ let ress= await cloudinary.uploader
       createdby: userId,
       addedBy: email,
       about_exhibition,
-
+      email: exhibition_email,
+      Support,
+      sponsor,
+      terms_of_service,
+      privacy_policy,
+      partners,
+      session,
+      speakers,
       // 👇 These fields are required in your schema
-     exhibtion_url:ress,
-     layout_url:ress2
+      exhibtion_url: ress,
+      layout_url: ress2
     });
 
     if (!newExhibition) {
@@ -304,10 +319,10 @@ async function handlepostcompany(req, res) {
     let { path, filename } = req.file;
     console.log(path)
     const { company_name, company_email, company_nature, about_company, company_phone_number, company_address, pincode, createdBy } = req.body;
-let ress=  await cloudinary.uploader
-  .upload(path)
-  .then(result => result.url)
-  .catch(error => console.error(error));
+    let ress = await cloudinary.uploader
+      .upload(path)
+      .then(result => result.url)
+      .catch(error => console.error(error));
     const company = await companyModel.create({
       company_name,
       company_email,
@@ -316,7 +331,7 @@ let ress=  await cloudinary.uploader
       company_address,
       pincode,
       createdBy,
-      about_company, company_url:ress
+      about_company, company_url: ress
     });
 
     res.status(201).json({ message: 'Company added successfully', company });
@@ -406,36 +421,41 @@ async function handleGetCompany(req, res) {
     return handleServerError(res, err, "Failed to fetch company");
   }
 }
-async function handleproductDetail(req,res){
-try{
-  const { id } = req.params;
-  let product = await ProductModel.findById(id);
-  if (!product) return res.status(404).json({ message: "product not found" });
-  res.json(product);
-}catch (err) {
+async function handleproductDetail(req, res) {
+  try {
+    const { id } = req.params;
+    let product = await ProductModel.findById(id);
+    if (!product) return res.status(404).json({ message: "product not found" });
+    res.json(product);
+  } catch (err) {
     return handleServerError(res, err, "Failed to fetch Product Details");
   }
-} 
+}
 
 // ✅ Add new product
 async function handlePostProduct(req, res) {
- 
+
   try {
-    console.log("Uploaded File:", req.file);
-    const { path, filename } = req.file;
+    const image = req.files["image"]?.[0];
+    const video = req.files["video"]?.[0];
+    console.log(image)
+    console.log(video)
+    
     const { product_name, category, price, details, createdBy, exhibitionid } = req.body;
-  let ress=  await cloudinary.uploader
-  .upload(path)
-  .then(result => result.url)
-  .catch(error => console.error(error));
+    const uploadResult = await cloudinary.uploader.upload(video.path, {
+      resource_type: "video",   // IMPORTANT for video upload
+      folder: "products"        // optional: store in folder
+    });
+    let imageres = await cloudinary.uploader
+      .upload(image.path)
     const product = await ProductModel.create({
       product_name,
       category,
       price,
       details,
-      product_url:ress,
+      product_url: imageres.secure_url,
       createdBy,
-      exhibitionid
+      exhibitionid,product_video_url:uploadResult.secure_url
     });
 
     res.json({
@@ -481,10 +501,10 @@ async function handlegetBrochure(req, res) {
 
 async function handlegetimage(req, res) {
   try {
-    const {filename ,pathname } = req.body;
-    console.log(filename,pathname);
-    if(!filename || !pathname){
-       return res.status(404).json({ msg: "Error in  Fields" });
+    const { filename, pathname } = req.body;
+    console.log(filename, pathname);
+    if (!filename || !pathname) {
+      return res.status(404).json({ msg: "Error in  Fields" });
     }
 
     let wor = path.dirname(pathname);
@@ -497,7 +517,7 @@ async function handlegetimage(req, res) {
 
     // 3. Resolve absolute file path
     const filePath = path.resolve(word, filename);
-console.log(filePath,'ffff');
+    console.log(filePath, 'ffff');
     // 4. Send file to browser (for inline view)
     res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
     return res.sendFile(filePath, (err) => {
@@ -601,16 +621,16 @@ async function handleappsignup(req, res) {
           mobile_number,
           otp,
         });
-       const token = setExhibition(sign);
-    res
-      .cookie("uid", token)
-      .status(201)
-      .json({
-        message: "New user created successfully",
-        user: sign, // ✅ Return the created user for the frontend
-      });
+        const token = setExhibition(sign);
+        res
+          .cookie("uid", token)
+          .status(201)
+          .json({
+            message: "New user created successfully",
+            user: sign, // ✅ Return the created user for the frontend
+          });
       } else {
-           let dat = await otpmodel.deleteOne({ email, isapproved: false });
+        let dat = await otpmodel.deleteOne({ email, isapproved: false });
         console.log(dat, 'data')
         console.log(dat2, 'data2')
         let otp = "";
@@ -675,24 +695,25 @@ async function handleappsignup(req, res) {
           mobile_number,
           otp,
         });
-       const token = setExhibition(sign);
-    res
-      .cookie("uid", token)
-      .status(201)
-      .json({
-        message: "New user created successfully",
-        user: sign, // ✅ Return the created user for the frontend
-      });
-      }}
-      else {
-        return res.send('allready user');
-
+        const token = setExhibition(sign);
+        res
+          .cookie("uid", token)
+          .status(201)
+          .json({
+            message: "New user created successfully",
+            user: sign, // ✅ Return the created user for the frontend
+          });
       }
+    }
+    else {
+      return res.send('allready user');
 
     }
-    // 1. Generate OTP (convert to number)
 
-   catch (err) {
+  }
+  // 1. Generate OTP (convert to number)
+
+  catch (err) {
     console.error("Error in signup middleware:", err.message);
     return res
       .status(500)
