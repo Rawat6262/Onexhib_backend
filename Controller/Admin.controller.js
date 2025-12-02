@@ -32,6 +32,8 @@ async function Admindeleteallexhibition(req, res) {
       success: true,
       message: "All exhibitions deleted successfully",
       deletedCount: result.deletedCount,
+      deletedCount: result2.deletedCount,
+      deletedCount: result3.deletedCount,
     });
 
   } catch (error) {
