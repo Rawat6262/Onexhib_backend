@@ -12,7 +12,6 @@ let Companyschemma = new mongoose.Schema({
     }, company_phone_number: {
         type:Number,
         required: true,
-        unique: true
     }, company_address: {
         type: String,
         required: true,
@@ -28,7 +27,7 @@ let Companyschemma = new mongoose.Schema({
         required: true,
     }, company_url:{
         type:String,
-        required: true
+        required: false
     }
 
 });

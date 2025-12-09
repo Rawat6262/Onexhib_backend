@@ -21,7 +21,9 @@ const {
   handleapplogin,
   handleapprealsignup,
   handlegetimage,
-  handleproductDetail
+  handleproductDetail,
+  handlecompanysingleDelete,
+  handleGetforupdateCompany
 } = require('../Controller/Controller');
 
 const {
@@ -30,7 +32,9 @@ const {
   Admingetexhibition,
   Admingetproduct,
   Admindeleteallexhibition,Admindeleteallcompany,
-  Admindeleteallproduct
+  Admindeleteallproduct,
+  AdminUpdateExhibition,
+  AdminUpdatecompany
 } = require('../Controller/Admin.controller');
 
 const {
@@ -67,11 +71,14 @@ router.post('/api/exhibition',exhibitionupload.fields([{ name: "exhibition_image
 router.post('/api/findexhibition', handleFindExhibition);
 router.get('/api/find/exhibition/:id', handleFindExhibition);
 router.delete('/api/delete/exhibition/:id', handleDelete);
+router.delete('/api/delete/company/:id', handlecompanysingleDelete);
+
 /**
  * 🏢 Company Routes
  */
 router.post('/api/company',companyupload.single('brochure'), handlepostcompany);
 router.get('/api/company/:id', handleGetCompany); 
+router.get('/api/companydetail/:id', handleGetforupdateCompany); 
 router.get('/api/company/addproduct/:id', handleGetaddCompany); 
 router.get('/api/product/:id', handleGetproduct); 
 router.post("/api/product", productupload.fields([{ name: "image" }, { name: "video" }]),handlePostProduct);
@@ -93,5 +100,7 @@ router.get('/api/admin/product', Admingetproduct);
 router.delete('/api/admin/deleteallexhibition', Admindeleteallexhibition);
 router.delete('/api/admin/deleteallproduct', Admindeleteallproduct);
 router.delete('/api/admin/deleteallcompany', Admindeleteallcompany);
+router.put('/api/admin/updateexhibitions/:id',AdminUpdateExhibition)
+router.put('/api/admin/updatecompany/:id',AdminUpdatecompany)
 
 module.exports = router;

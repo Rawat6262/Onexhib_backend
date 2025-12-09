@@ -45,6 +45,53 @@ async function Admindeleteallexhibition(req, res) {
     });
   }
 }
+async function AdminUpdateExhibition(req, res) {
+  try {
+    const exhibitionId = req.params.id;        // ID from URL
+    const updatedData = req.body;              // All form fields
+
+    // Update exhibition
+    const updatedExhibition = await exhibitionModel.findByIdAndUpdate(
+      exhibitionId,
+      { $set: updatedData },
+      { new: true } // return updated document
+    );
+
+    if (!updatedExhibition) {
+      return res.status(404).json({ message: "Exhibition not found" });
+    }
+
+    res.status(200).json(updatedExhibition);
+
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+}
+async function AdminUpdatecompany(req, res) {
+  try {
+    const companyId = req.params.id;        // ID from URL
+    const updatedData = req.body;              // All form fields
+
+    // Update exhibition
+    const updatedExhibition = await companyModel.findByIdAndUpdate(
+      companyId,
+      { $set: updatedData },
+      { new: true } // return updated document
+    );
+
+    if (!updatedExhibition) {
+      return res.status(404).json({ message: "company not found" });
+    }
+
+    res.status(200).json(updatedExhibition);
+
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+}
+
 async function Admindeleteallcompany(req, res) {
   try {
     // Delete all documents from exhibition collection
@@ -89,6 +136,8 @@ async function Admindeleteallproduct(req, res) {
     });
   }
 }
+
+
 module.exports = Admindeleteallexhibition;
 
 
@@ -99,5 +148,7 @@ module.exports = {
     Admingetproduct,
     Admindeleteallexhibition,
     Admindeleteallcompany,
-    Admindeleteallproduct
+    Admindeleteallproduct,
+    AdminUpdateExhibition,
+    AdminUpdatecompany
 };

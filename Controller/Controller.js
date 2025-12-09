@@ -312,17 +312,27 @@ async function handleExhibition(req, res) {
     return handleServerError(res, err, "Failed to create exhibition");
   }
 }
-
-// ✅ Add new company
 async function handlepostcompany(req, res) {
   try {
-    let { path, filename } = req.file;
-    console.log(path)
-    const { company_name, company_email, company_nature, about_company, company_phone_number, company_address, pincode, createdBy } = req.body;
-    let ress = await cloudinary.uploader
-      .upload(path)
-      .then(result => result.url)
-      .catch(error => console.error(error));
+    const {
+      company_name,
+      company_email,
+      company_nature,
+      about_company,
+      company_phone_number,
+      company_address,
+      pincode,
+      createdBy
+    } = req.body;
+
+    let companyUrl;
+
+    // only if file is actually sent
+    if (req.file && req.file.path) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path);
+      companyUrl = uploadResult.secure_url || uploadResult.url;
+    }
+
     const company = await companyModel.create({
       company_name,
       company_email,
@@ -331,17 +341,48 @@ async function handlepostcompany(req, res) {
       company_address,
       pincode,
       createdBy,
-      about_company, company_url: ress
+      about_company,
+      company_url: companyUrl, // can be undefined if optional
     });
 
-    res.status(201).json({ message: 'Company added successfully', company });
+    return res.status(201).json({ message: "Company added successfully", company });
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'Company with this phone number already exists' });
+      return res.status(400).json({ message: "Company with this phone number already exists" });
     }
     return handleServerError(res, err, "Failed to add company");
   }
 }
+
+// ✅ Add new company
+// async function handlepostcompany(req, res) {
+//   try {
+//     let { path, filename } = req.file;
+//     console.log(path)
+//     const { company_name, company_email, company_nature, about_company, company_phone_number, company_address, pincode, createdBy } = req.body;
+//     let ress = await cloudinary.uploader
+//       .upload(path)
+//       .then(result => result.url)
+//       .catch(error => console.error(error));
+//     const company = await companyModel.create({
+//       company_name,
+//       company_email,
+//       company_nature,
+//       company_phone_number,
+//       company_address,
+//       pincode,
+//       createdBy,
+//       about_company, company_url: ress
+//     });
+
+//     res.status(201).json({ message: 'Company added successfully', company });
+//   } catch (err) {
+//     if (err.code === 11000) {
+//       return res.status(400).json({ message: 'Company with this phone number already exists' });
+//     }
+//     return handleServerError(res, err, "Failed to add company");
+//   }
+// }
 
 // ✅ Find exhibition by ID
 async function handleFindExhibition(req, res) {
@@ -380,6 +421,26 @@ async function handleDelete(req, res) {
   } catch (err) {
     console.error("Error deleting exhibition:", err);
     return res.status(500).json({ error: "Failed to delete exhibition" });
+  }
+}
+async function handlecompanysingleDelete(req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Company ID is required" });
+
+    // const deletedExhibition = await exhibitionModel.findByIdAndDelete(id);
+    const deletecompany = await companyModel.findByIdAndDelete(id);
+    const deleteproduct = await ProductModel.deleteMany({ createdBy: id });
+
+    if ( !deletecompany && !deleteproduct) return res.status(404).json({ error: "Company not found" });
+
+    return res.json({
+      message: "✅ Company deleted successfully",
+      deletecompany,
+    });
+  } catch (err) {
+    console.error("Error deleting Company:", err);
+    return res.status(500).json({ error: "Failed to delete Company" });
   }
 }
 
@@ -421,6 +482,17 @@ async function handleGetCompany(req, res) {
     return handleServerError(res, err, "Failed to fetch company");
   }
 }
+async function handleGetforupdateCompany(req, res) {
+  try {
+    const { id } = req.params;
+    const company = await companyModel.findById(id);
+
+    if (!company) return res.status(404).json({ message: "Company not found" });
+    res.json(company);
+  } catch (err) {
+    return handleServerError(res, err, "Failed to fetch company");
+  }
+}
 async function handleproductDetail(req, res) {
   try {
     const { id } = req.params;
@@ -455,7 +527,8 @@ async function handlePostProduct(req, res) {
       details,
       product_url: imageres.secure_url,
       createdBy,
-      exhibitionid,product_video_url:uploadResult.secure_url
+      exhibitionid,
+      product_video_url:uploadResult.secure_url
     });
 
     res.json({
@@ -856,6 +929,29 @@ const handleapprealsignup = async (req, res) => {
       .json({ success: false, message: "Allready user existed" });
   }
 }
+ 
+async function handleDeleteSingleExhibition(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Exhibition ID is required" });
+    }
+
+    const deleted = await exhibitionModel.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Exhibition not found" });
+    }
+
+    res.status(200).json({ message: "Exhibition deleted successfully", deleted });
+
+  } catch (error) {
+    console.error("Delete Error:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+}
+
 module.exports = {
   handleapprealsignup,
   handleappsignup,
@@ -877,5 +973,8 @@ module.exports = {
   handlewebotp,
   handleapplogin,
   handlegetimage,
-  handleproductDetail
+  handleproductDetail,
+  handleDeleteSingleExhibition,
+  handlecompanysingleDelete,
+  handleGetforupdateCompany
 };
