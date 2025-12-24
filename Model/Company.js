@@ -10,7 +10,7 @@ let Companyschemma = new mongoose.Schema({
         type: String,
         required: true
     }, company_phone_number: {
-        type:Number,
+        type: Number,
         required: true,
     }, company_address: {
         type: String,
@@ -18,18 +18,34 @@ let Companyschemma = new mongoose.Schema({
     }, pincode: {
         type: Number,
         required: true
-    },createdBy:{
-        type:mongoose.Schema.ObjectId,
-        ref:'exhibition'
+    }, createdBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'exhibition'
     },
-    about_company:{
-         type: String,
+    about_company: {
+        type: String,
         required: true,
-    }, company_url:{
-        type:String,
+    },company_website:{
+        type:String,required:true
+    } ,
+    company_url: {
+        type: String,
         required: false
+    },
+    company_image_url: {
+        type: String,
+        required: false
+    }, company_website: {
+        type: String,
+        required: false
+    }, stall_no: {
+        type: String,
+        required: true
+    },
+    hall_no: {
+        type: String, required: true
     }
 
 });
 let companyModel = mongoose.model('companyModel', Companyschemma);
-module.exports= companyModel;
+module.exports = companyModel;

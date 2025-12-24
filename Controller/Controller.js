@@ -253,11 +253,14 @@ async function handleExhibition(req, res) {
   try {
     console.log("Uploaded Files:", req.files);
 
-    const exhibitionImage = req.files["exhibition_image"]?.[0];
-    const layoutFile = req.files["layout"]?.[0];
-    console.log(exhibitionImage, layoutFile);
+    const exhibitionImage = req.files?.exhibition_image?.[0];
+    const layoutFile = req.files?.layout?.[0];
+
     if (!exhibitionImage || !layoutFile) {
-      return res.status(400).json({ message: "Both exhibition image and layout are required" });
+      return res.status(400).json({
+        success: false,
+        message: "Both exhibition image and layout are required",
+      });
     }
 
     const {
@@ -267,18 +270,43 @@ async function handleExhibition(req, res) {
       starting_date,
       ending_date,
       venue,
-      about_exhibition, Support, privacy_policy, terms_of_service, partners, sponsor, session, speakers, email: exhibition_email
+      about_exhibition,
+      Support,
+      privacy_policy,
+      terms_of_service,
+      partners,
+      sponsor,
+      session,
+      speakers,
+      email: exhibition_email,
     } = req.body;
 
     const { _id: userId, email } = req.user;
-    let ress = await cloudinary.uploader
-      .upload(exhibitionImage.path)
-      .then(result => result.url)
-      .catch(error => console.error(error));
-    let ress2 = await cloudinary.uploader
-      .upload(layoutFile.path)
-      .then(result => result.url)
-      .catch(error => console.error(error));
+
+    /* -------------------- Upload Exhibition Image -------------------- */
+    const imageUpload = await cloudinary.uploader.upload(
+      exhibitionImage.path,
+      { folder: "exhibitions/images" }
+    );
+
+    /* -------------------- Upload Layout (PDF) -------------------- */
+    const layoutUpload = await cloudinary.uploader.upload(
+      layoutFile.path,
+      {
+        resource_type: "auto",
+        folder: "exhibitions/layouts",
+      }
+    );
+
+    /* -------------------- Optional PDF Preview -------------------- */
+    const pdfPreviewUrl = cloudinary.url(layoutUpload.public_id, {
+      resource_type: "image",
+      format: "jpg",
+      page:1,
+      secure: true,
+    });
+    console.log(pdfPreviewUrl,'dsvsfgvssdfsdhfsdhfsj')
+    /* -------------------- Save to Database -------------------- */
     const newExhibition = await exhibitionModel.create({
       exhibition_name,
       exhibition_address,
@@ -297,21 +325,37 @@ async function handleExhibition(req, res) {
       partners,
       session,
       speakers,
-      // 👇 These fields are required in your schema
-      exhibtion_url: ress,
-      layout_url: ress2
+
+      // Required schema fields
+      exhibtion_url: imageUpload.secure_url,
+      layout_url:pdfPreviewUrl,
+      // layout_preview: pdfPreviewUrl, // ← add if schema supports
     });
 
     if (!newExhibition) {
-      return res.status(400).send("Exhibition creation failed");
+      return res.status(400).json({
+        success: false,
+        message: "Exhibition creation failed",
+      });
     }
 
     const token = setname(newExhibition);
-    res.cookie("name", token).send("Exhibition added successfully");
+
+    res
+      .cookie("name", token, { httpOnly: true, secure: true })
+      .status(201)
+      .json({
+        success: true,
+        message: "Exhibition added successfully",
+        data: newExhibition,
+      });
+
   } catch (err) {
+    console.error(err);
     return handleServerError(res, err, "Failed to create exhibition");
   }
 }
+
 async function handlepostcompany(req, res) {
   try {
     const {
@@ -322,37 +366,68 @@ async function handlepostcompany(req, res) {
       company_phone_number,
       company_address,
       pincode,
-      createdBy
+      createdBy,
+      stall_no,
+      hall_no,
+      company_website
     } = req.body;
 
-    let companyUrl;
+    let brochureUrl;
+    let companyImageUrl;
 
-    // only if file is actually sent
-    if (req.file && req.file.path) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path);
-      companyUrl = uploadResult.secure_url || uploadResult.url;
+    // Multer fields -> req.files
+    if (req.files) {
+
+      // brochure image
+      if (req.files.brochure && req.files.brochure[0]) {
+        const brochureUpload = await cloudinary.uploader.upload(
+          req.files.brochure[0].path,
+          { resource_type: "auto" }
+        );
+        brochureUrl = brochureUpload.secure_url;
+      }
+
+      // company image
+      if (req.files.company_image_url && req.files.company_image_url[0]) {
+        const imageUpload = await cloudinary.uploader.upload(
+          req.files.company_image_url[0].path,
+          { resource_type: "auto" }
+        );
+        companyImageUrl = imageUpload.secure_url;
+      }
     }
 
     const company = await companyModel.create({
       company_name,
       company_email,
       company_nature,
+      about_company,
       company_phone_number,
       company_address,
       pincode,
       createdBy,
-      about_company,
-      company_url: companyUrl, // can be undefined if optional
+      stall_no,
+      hall_no,
+      company_website,
+      company_url: brochureUrl,           // optional
+      company_image_url: companyImageUrl   // optional
     });
 
-    return res.status(201).json({ message: "Company added successfully", company });
+    return res.status(201).json({
+      message: "Company added successfully",
+      company
+    });
+
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(400).json({ message: "Company with this phone number already exists" });
+      return res.status(400).json({
+        message: "Company with this phone number already exists"
+      });
     }
     return handleServerError(res, err, "Failed to add company");
   }
 }
+
 
 // ✅ Add new company
 // async function handlepostcompany(req, res) {
@@ -443,6 +518,26 @@ async function handlecompanysingleDelete(req, res) {
     return res.status(500).json({ error: "Failed to delete Company" });
   }
 }
+async function handleproductsingleDelete(req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "product ID is required" });
+
+    // const deletedExhibition = await exhibitionModel.findByIdAndDelete(id);
+    const deleteproduct = await ProductModel.findByIdAndDelete(id);
+    // const deleteproduct = await ProductModel.deleteMany({ createdBy: id });
+
+    if (  !deleteproduct) return res.status(404).json({ error: "Company not found" });
+
+    return res.json({
+      message: "✅ product deleted successfully",
+      deleteproduct,
+    });
+  } catch (err) {
+    console.error("Error deleting product:", err);
+    return res.status(500).json({ error: "Failed to delete product" });
+  }
+}
 
 // ✅ Get company by ID
 async function handleGetaddCompany(req, res) {
@@ -493,6 +588,7 @@ async function handleGetforupdateCompany(req, res) {
     return handleServerError(res, err, "Failed to fetch company");
   }
 }
+
 async function handleproductDetail(req, res) {
   try {
     const { id } = req.params;
@@ -976,5 +1072,6 @@ module.exports = {
   handleproductDetail,
   handleDeleteSingleExhibition,
   handlecompanysingleDelete,
-  handleGetforupdateCompany
+  handleGetforupdateCompany,
+  handleproductsingleDelete
 };
