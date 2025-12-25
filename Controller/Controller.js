@@ -154,13 +154,13 @@ async function handlelogin(req, res) {
     // ✅ 1. Check if the user exists
     const user = await Signupmodel.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid email" });
     }
 
     // ✅ 2. Compare the plain password with the hashed one from DB
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     // ✅ 3. Generate JWT or session token

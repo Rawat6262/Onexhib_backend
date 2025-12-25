@@ -1,6 +1,6 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
-let service = new mongoose.Schema({
+const serviceSchema = new mongoose.Schema({
     full_name: {
         type: String,
         required: [true, 'we need this field']
@@ -34,8 +34,10 @@ let service = new mongoose.Schema({
         type: String,
         required: true
     },
-    mobile_number:{
-        type:String,
-        reequired:true
+    mobile_number: {
+        type: String,
+        required: true
     }
-})
+}, { timestamps: true });
+
+module.exports = mongoose.model("Service", serviceSchema);

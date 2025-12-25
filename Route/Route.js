@@ -107,4 +107,22 @@ router.put('/api/admin/updateexhibitions/:id',AdminUpdateExhibition)
 router.put('/api/admin/updatecompany/:id',AdminUpdatecompany)
 router.put('/api/admin/updateproduct/:id',AdminUpdateproduct)
 
+// exhibitions_services
+
+const {
+    createService,
+    getAllServices,
+    getServiceById,
+    updateService,
+    deleteService
+} = require("../Controller/service.controller");
+
+router.post("/api/add/service", createService);
+router.get("/api/get/service", getAllServices);
+router.get("/api/get/servicebyid/:id", getServiceById);
+router.put("/api/update/service/:id", updateService);
+router.delete("/api/delete/service/:id", deleteService);
+
+module.exports = router;
+
 module.exports = router;
