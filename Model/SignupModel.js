@@ -25,11 +25,11 @@ let Signupschema = new mongoose.Schema({
     },
     designation: {
         type: String,
-        required: true
+        // required: true
     },
     company_name: {
         type: String,
-        required: true
+        // required: true
     },
     state: {
         type: String,
@@ -41,7 +41,7 @@ let Signupschema = new mongoose.Schema({
     },
     website: {
         type: String,
-        required: true
+        // required: true
     },
     country: {
         type: String,

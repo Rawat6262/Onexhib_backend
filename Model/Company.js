@@ -26,16 +26,13 @@ let Companyschemma = new mongoose.Schema({
         type: String,
         required: true,
     },company_website:{
-        type:String,required:true
+        type:String,
     } ,
     company_url: {
         type: String,
         required: false
     },
     company_image_url: {
-        type: String,
-        required: false
-    }, company_website: {
         type: String,
         required: false
     }, stall_no: {

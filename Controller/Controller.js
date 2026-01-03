@@ -35,7 +35,7 @@ async function handlesignup(req, res) {
       country,
       company_name,
     } = req.body;
-    if (!first_name || !last_name || !email || !designation || !mobile_number || !password || !address || !website || !state || !city || !country || !company_name) {
+    if (!first_name || !last_name || !email || !mobile_number || !password || !address  || !state || !city || !country ) {
       return res.status(400).json({
         success: false,
         message: "All fields  are required.",
@@ -278,6 +278,8 @@ async function handleExhibition(req, res) {
       sponsor,
       session,
       speakers,
+      exhibitor_profile,
+      vistor,
       email: exhibition_email,
     } = req.body;
 
@@ -325,6 +327,8 @@ async function handleExhibition(req, res) {
       partners,
       session,
       speakers,
+      exhibitor_profile,
+      vistor,
 
       // Required schema fields
       exhibtion_url: imageUpload.secure_url,
@@ -602,40 +606,71 @@ async function handleproductDetail(req, res) {
 
 // ✅ Add new product
 async function handlePostProduct(req, res) {
-
   try {
-    const image = req.files["image"]?.[0];
-    const video = req.files["video"]?.[0];
-    console.log(image)
-    console.log(video)
-    
-    const { product_name, category, price, details, createdBy, exhibitionid } = req.body;
-    const uploadResult = await cloudinary.uploader.upload(video.path, {
-      resource_type: "video",   // IMPORTANT for video upload
-      folder: "products"        // optional: store in folder
-    });
-    let imageres = await cloudinary.uploader
-      .upload(image.path)
+    const image = req.files?.image?.[0] || null;
+    const video = req.files?.video?.[0] || null;
+
+    const {
+      product_name,
+      category,
+      price,
+      details,
+      createdBy,
+      exhibitionid,
+    } = req.body;
+
+    // basic required field check
+    if (!product_name || !category || !details) {
+      return res.status(400).json({
+        message: "Product name, category and details are required",
+      });
+    }
+
+    let imageUrl = null;
+    let videoUrl = null;
+
+    /* ---------- IMAGE UPLOAD (OPTIONAL) ---------- */
+    if (image) {
+      const imageResult = await cloudinary.uploader.upload(image.path, {
+        folder: "products/images",
+      });
+      imageUrl = imageResult.secure_url;
+    }
+
+    /* ---------- VIDEO UPLOAD (OPTIONAL) ---------- */
+    if (video) {
+      const videoResult = await cloudinary.uploader.upload(video.path, {
+        resource_type: "video",
+        folder: "products/videos",
+      });
+      videoUrl = videoResult.secure_url;
+    }
+
+    /* ---------- CREATE PRODUCT ---------- */
     const product = await ProductModel.create({
       product_name,
       category,
       price,
       details,
-      product_url: imageres.secure_url,
       createdBy,
       exhibitionid,
-      product_video_url:uploadResult.secure_url
+      product_url: imageUrl,            // null if not uploaded
+      product_video_url: videoUrl,      // null if not uploaded
     });
 
-    res.json({
+    return res.status(201).json({
       message: "✅ Product uploaded successfully",
-      product
+      product,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "❌ Upload failed", error: err.message });
+    console.error("Product Upload Error:", err);
+    return res.status(500).json({
+      message: "❌ Upload failed",
+      error: err.message,
+    });
   }
 }
+
 
 // ✅ Find signup user by ID
 async function handlefindsignup(req, res) {

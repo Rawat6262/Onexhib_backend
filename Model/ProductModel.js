@@ -4,7 +4,7 @@ let productSchema = new mongoose.Schema({
         { type: String, required: true },
     category: { type: String, required: true },
     details: { type: String, required: true }, 
-    price: { type: Number, required: true },
+    price: { type: Number,  },
      product_url: { type: String, },
       createdBy: { type: mongoose.Schema.ObjectId, ref: 'product' },
        exhibitionid: { type: mongoose.Schema.ObjectId, ref: 'exhibition' },

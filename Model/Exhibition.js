@@ -36,7 +36,7 @@ let exhibitionschema = new mongoose.Schema(
     },
     email:{
  type: String,
-      required: true,
+      // required: true,
       trim: true
     },
     createdby: {
@@ -55,30 +55,34 @@ let exhibitionschema = new mongoose.Schema(
     },
     speakers: {
       type: String,
-      required: true,
+      // required: true,
     },
     session: {
       type: String,
-      required: true,
+      // required: true,
     },
     sponsor: {
       type: String,
-      required: true,
+      // required: true,
     },
     privacy_policy: {
       type: String,
-      required: true,
+      // required: true,
     },
     partners: {
       type: String,
-      required: true,
+      // required: true,
     }, terms_of_service: {
       type: String,
-      required: true,
+      // required: true,
     },
     Support: {
       type: String,
-      required: true,
+      // required: true,
+    },vistor:{
+      type:String
+    },exhibitor_profile:{
+      type:String
     }
 
   },
