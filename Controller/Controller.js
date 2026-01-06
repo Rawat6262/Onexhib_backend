@@ -381,16 +381,21 @@ async function handlepostcompany(req, res) {
 
     // Multer fields -> req.files
     if (req.files) {
-
+      const brochure = req.files?.brochure?.[0];
       // brochure image
-      if (req.files.brochure && req.files.brochure[0]) {
-        const brochureUpload = await cloudinary.uploader.upload(
-          req.files.brochure[0].path,
-          { resource_type: "auto" }
-        );
-        brochureUrl = brochureUpload.secure_url;
+       const layoutUpload = await cloudinary.uploader.upload(
+      brochure.path,
+      {
+        resource_type: "auto",
       }
-
+    );
+const pdfPreviewUrl = cloudinary.url(layoutUpload.public_id, {
+      resource_type: "image",
+      format: "jpg",
+      page:1,
+      secure: true,
+    });
+    brochureUrl =pdfPreviewUrl;
       // company image
       if (req.files.company_image_url && req.files.company_image_url[0]) {
         const imageUpload = await cloudinary.uploader.upload(
@@ -413,7 +418,7 @@ async function handlepostcompany(req, res) {
       stall_no,
       hall_no,
       company_website,
-      company_url: brochureUrl,           // optional
+      company_url: brochureUrl,  // optional
       company_image_url: companyImageUrl   // optional
     });
 
