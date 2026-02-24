@@ -15,7 +15,7 @@ Connection(process.env.MONGO_URL)
   .then(() => console.log('✅ Database connection has been established'))
   .catch((e) => console.log('❌ DB error:', e));
 
-app.use(express.json());
+app.use(express.json({limit:"500kb"}));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("./public"));

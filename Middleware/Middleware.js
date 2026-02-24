@@ -64,7 +64,14 @@ const exhibtionstorage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname)
   }
 })
+const newimage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
+
 const companyupload = multer({ storage: companystorage })
 const productupload = multer({ storage: productstorage })
 const exhibitionupload = multer({ storage: exhibtionstorage })
-module.exports = { restrictToLoginUser, addvaluetoexhibition,productupload,exhibitionupload,companyupload};
+const newimageupload = multer({ storage: newimage })
+module.exports = { restrictToLoginUser, addvaluetoexhibition,productupload,exhibitionupload,companyupload,newimageupload};

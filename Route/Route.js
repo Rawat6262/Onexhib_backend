@@ -46,7 +46,8 @@ const {
   productupload,
   exhibitionupload,
   companyupload,
-  signupappmidle
+  signupappmidle,
+  newimageupload
 } = require('../Middleware/Middleware');
 
 const router = express.Router();
@@ -116,12 +117,19 @@ const {
     updateService,
     deleteService
 } = require("../Controller/service.controller");
+const { createNews } = require('../Controller/new.controller');
 
 router.post("/api/add/service", createService);
 router.get("/api/get/service", getAllServices);
 router.get("/api/get/servicebyid/:id", getServiceById);
 router.put("/api/update/service/:id", updateService);
 router.delete("/api/delete/service/:id", deleteService);
+
+
+
+// news
+router.post("/api/addnew", newimageupload.single("news_image_url"),createNews);
+router.get("/api/getnews", createNews);
 
 module.exports = router;
 
