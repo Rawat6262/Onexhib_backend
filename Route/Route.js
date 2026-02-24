@@ -132,5 +132,3 @@ router.post("/api/addnew", newimageupload.single("news_image_url"),createNews);
 router.get("/api/getnews", getAllNews);
 
 module.exports = router;
-
-module.exports = router;
