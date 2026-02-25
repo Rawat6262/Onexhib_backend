@@ -117,7 +117,7 @@ const {
     updateService,
     deleteService
 } = require("../Controller/service.controller");
-const { createNews } = require('../Controller/new.controller');
+const { createNews, getAllNews } = require('../Controller/new.controller');
 
 router.post("/api/add/service", createService);
 router.get("/api/get/service", getAllServices);
@@ -128,7 +128,7 @@ router.delete("/api/delete/service/:id", deleteService);
 
 
 // news
-router.post("/api/addnew", newimageupload.single("news_image_url"),createNews);
+router.post("/api/addnew", newimageupload.single("news_image_url"),createNews);   
 router.get("/api/getnews", getAllNews);
 
 module.exports = router;
